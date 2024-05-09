@@ -26,15 +26,55 @@ class Target(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.center = [pos_x, pos_y]
 
+class GameState():
+    def __init__(self):
+        self.state = 'intro'
+
+    def intro(self):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                self.state = "main" # change state
+
+        pygame.display.flip()
+        screen.blit(background, (0, 0)) # background
+        screen.blit(ready_image, (screen_width / 2 - 115, screen_height / 2 - 33))
+        crosshair_group.draw(screen) # crosshair
+        crosshair_group.update()
+
+    def main_game(self):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                crosshair.shoot() # gun shot sound when mouse click
+
+        pygame.display.flip()
+        screen.blit(background, (0, 0)) # background
+        target_group.draw(screen)
+        crosshair_group.draw(screen) # crosshair
+        crosshair_group.update()
+
+    def state_switch(self):
+        if self.state == "main":
+            self.main_game()
+        if self.state == "intro":
+            self.intro()
+
 
 # general setup
 pygame.init()
 clock = pygame.time.Clock()
+game = GameState()
 
 # display
 screen_width = 1920
 screen_height = 1000
 screen = pygame.display.set_mode((screen_width, screen_height))
+ready_image = pygame.image.load("./assets/text_ready.png")
 background = pygame.image.load("./assets/bg_blue.png")
 background = pygame.transform.scale(background, (screen_width, screen_height))
 pygame.mouse.set_visible(False) # invisible mouse
@@ -54,16 +94,5 @@ for target in range(20):
 
 # main loop
 while True:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            pygame.quit()
-            sys.exit()
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            crosshair.shoot() # gun shot sound when mouse click
-
-    pygame.display.flip()
-    screen.blit(background, (0, 0)) # background
-    target_group.draw(screen)
-    crosshair_group.draw(screen) # crosshair
-    crosshair_group.update()
+    game.state_switch()
     clock.tick(60)
